@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Julian Davies — Dispatch Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0F14;
+    --bg-raise: #0F141A;
+    --panel: #131920;
+    --panel-hover: #171E27;
+    --border: #232B35;
+    --border-soft: #1B222B;
+    --text: #E6E9ED;
+    --muted: #7C8797;
+    --faint: #4B5563;
+    --amber: #E8A33D;
+    --amber-dim: #8A651F;
+    --teal: #5FBFB3;
+    --red: #D9695F;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(232,163,61,0.05), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(95,191,179,0.04), transparent 45%);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--amber-dim); color:#fff;}
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- Nav ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,15,20,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; max-width:920px; margin:0 auto;
+    font-family:var(--mono); font-size:13px;
+  }
+  .nav-prompt{color:var(--teal); white-space:nowrap;}
+  .nav-prompt span{color:var(--muted);}
+  .nav-links{display:flex; gap:22px; list-style:none; margin:0; padding:0;}
+  .nav-links a{
+    text-decoration:none; color:var(--muted);
+    transition:color .15s ease;
+    position:relative;
+  }
+  .nav-links a:hover{color:var(--text);}
+  .nav-links a::before{content:"./";color:var(--faint);}
+  .nav-links a.btn{
+    background:var(--amber);
+    color:#1a1305;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:5px;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .nav-links a.btn::before{content:none;}
+  .nav-links a.btn:hover{background:#f0b559; color:#1a1305; transform:translateY(-1px);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:88px 0 64px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .terminal{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:11px 14px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-raise);
+  }
+  .dot{width:10px; height:10px; border-radius:50%;}
+  .dot.r{background:#5c4033; opacity:.5;}
+  .dot.y{background:#5c4a1f; opacity:.5;}
+  .dot.g{background:#1f4a3a; opacity:.5;}
+  .terminal-title{
+    margin-left:8px; font-family:var(--mono); font-size:12px; color:var(--muted);
+  }
+  .terminal-body{
+    padding:26px 24px 30px;
+    font-family:var(--mono);
+    font-size:14.5px;
+    line-height:1.85;
+    min-height:200px;
+  }
+  .terminal-body .muted{color:var(--muted);}
+  .terminal-body .amber{color:var(--amber);}
+  .terminal-body .teal{color:var(--teal);}
+  .cursor{
+    display:inline-block; width:8px; height:16px;
+    background:var(--amber);
+    margin-left:2px;
+    vertical-align:-3px;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  .hero h1{
+    font-family:var(--mono);
+    font-size:15px;
+    font-weight:500;
+    color:var(--muted);
+    margin:26px 2px 0;
+    letter-spacing:.02em;
+  }
+  .hero p.lede{
+    font-size:17px;
+    line-height:1.65;
+    color:var(--text);
+    max-width:600px;
+    margin:10px 2px 0;
+  }
+  .hero-ctas{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin:22px 2px 0;
+  }
+  .cta{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:13px;
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:6px;
+    transition:transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .cta.primary{
+    background:var(--amber);
+    color:#1a1305;
+    font-weight:600;
+  }
+  .cta.primary:hover{background:#f0b559; transform:translateY(-1px);}
+  .cta.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  .cta.secondary:hover{border-color:var(--amber); color:var(--amber);}
+
+  /* ---------- Section labels ---------- */
+  .section{padding:64px 0;}
+  .section-label{
+    display:flex; align-items:center; gap:12px;
+    font-family:var(--mono); font-size:12.5px; color:var(--muted);
+    letter-spacing:.05em; text-transform:uppercase;
+    margin-bottom:28px;
+  }
+  .section-label::after{
+    content:""; flex:1; height:1px; background:var(--border);
+  }
+  .section-label .tag{
+    color:var(--amber); text-transform:none; letter-spacing:0;
+  }
+
+  /* ---------- Job cards ---------- */
+  .jobs{display:flex; flex-direction:column; gap:14px;}
+  .job{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    transition:border-color .18s ease, transform .18s ease, background .18s ease;
+  }
+  .job:hover{
+    border-color:#33404e;
+    background:var(--panel-hover);
+    transform:translateY(-2px);
+  }
+  .job-head{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--border-soft);
+    flex-wrap:wrap;
+  }
+  .status-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px rgba(95,191,179,0.12);
+    flex-shrink:0;
+  }
+  .job-name{
+    font-family:var(--mono); font-weight:600; font-size:15px;
+    color:var(--text);
+  }
+  .job-id{
+    font-family:var(--mono); font-size:12px; color:var(--faint);
+    margin-left:auto;
+  }
+  .job-body{padding:16px 18px 6px;}
+  .job-desc{
+    font-size:14.5px; line-height:1.6; color:#C7CDD5;
+    margin:0 0 16px;
+  }
+  .job-tags{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px;}
+  .job-tags span{
+    font-family:var(--mono); font-size:11.5px;
+    color:var(--teal);
+    background:rgba(95,191,179,0.08);
+    border:1px solid rgba(95,191,179,0.18);
+    padding:3px 8px; border-radius:4px;
+  }
+  .job-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap;
+    padding:12px 18px;
+    border-top:1px solid var(--border-soft);
+    background:var(--bg-raise);
+    font-family:var(--mono); font-size:12.5px;
+  }
+  .job-cmd{color:var(--muted); overflow-x:auto; white-space:nowrap;}
+  .job-cmd .amber{color:var(--amber);}
+  .job-link{
+    text-decoration:none;
+    color:var(--text);
+    border:1px solid var(--border);
+    padding:6px 12px; border-radius:5px;
+    white-space:nowrap;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .job-link:hover{border-color:var(--amber); color:var(--amber);}
+
+  /* ---------- Experience (deploy log) ---------- */
+  .log{
+    display:flex; flex-direction:column;
+  }
+  .log-entry{
+    display:grid;
+    grid-template-columns:120px 1px 1fr;
+    gap:0 24px;
+    position:relative;
+  }
+  .log-entry .rail{
+    display:flex; justify-content:center;
+    position:relative;
+  }
+  .log-entry .rail::before{
+    content:"";
+    position:absolute; top:6px; bottom:-28px; left:50%;
+    width:1px; background:var(--border);
+    transform:translateX(-50%);
+  }
+  .log-entry:last-child .rail::before{display:none;}
+  .log-entry .rail::after{
+    content:"";
+    position:absolute; top:5px; left:50%;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--amber);
+    transform:translateX(-50%);
+  }
+  .log-date{
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+    padding-top:2px; text-align:right; white-space:nowrap;
+  }
+  .log-body{padding-bottom:32px;}
+  .log-role{
+    font-family:var(--mono); font-weight:600; font-size:15px; color:var(--text);
+    margin:0 0 2px;
+  }
+  .log-org{
+    font-size:13px; color:var(--teal); margin:0 0 10px;
+    font-family:var(--mono);
+  }
+  .log-body ul{
+    margin:0; padding-left:18px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .log-body li{
+    font-size:14.5px; line-height:1.55; color:#C7CDD5;
+  }
+  .log-body li::marker{color:var(--amber);}
+
+  /* ---------- About ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:36px;
+  }
+  .about p{
+    font-size:15.5px; line-height:1.75; color:#C7CDD5;
+    margin:0 0 14px;
+  }
+  .edu{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid var(--border-soft);
+  }
+  .edu-item{
+    display:flex; justify-content:space-between; gap:12px;
+    font-size:14px; color:var(--text);
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .edu-item span.school{color:var(--muted); font-family:var(--mono); font-size:12.5px;}
+  .skills-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .stack{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:18px 20px;
+  }
+  .stack h3{
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.05em;
+    margin:0 0 14px;
+  }
+  .stack ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  .stack li{
+    font-family:var(--mono); font-size:13.5px; color:var(--text);
+    display:flex; align-items:baseline; gap:8px;
+  }
+  .stack li::before{content:"›"; color:var(--amber);}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--border-soft);
+    padding:30px 0 50px;
+  }
+  .footer-log{
+    font-family:var(--mono); font-size:12.5px; color:var(--faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  .footer-log a{text-decoration:none; color:var(--muted); transition:color .15s ease;}
+  .footer-log a:hover{color:var(--amber);}
+
+  @media (max-width:640px){
+    .about-grid{grid-template-columns:1fr;}
+    .skills-grid{grid-template-columns:1fr;}
+    .nav-links{gap:14px;}
+    .hero{padding:64px 0 44px;}
+    .terminal-body{font-size:13px;}
+    .log-entry{grid-template-columns:64px 1px 1fr; gap:0 14px;}
+    .log-date{font-size:10.5px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- Floating resume-bot widget ---------- */
+  .bot-fab{
+    position:fixed;
+    right:22px; bottom:22px;
+    z-index:100;
+    width:56px; height:56px;
+    border-radius:50%;
+    background:var(--amber);
+    border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 12px 30px -8px rgba(232,163,61,0.45), 0 2px 6px rgba(0,0,0,0.4);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .bot-fab:hover{transform:translateY(-2px) scale(1.04);}
+  .bot-fab svg{width:24px; height:24px;}
+  .bot-fab .fab-dot{
+    position:absolute; top:6px; right:6px;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--teal);
+    border:2px solid var(--bg);
+  }
+  .bot-fab-label{
+    position:fixed;
+    right:88px; bottom:38px;
+    z-index:100;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:var(--mono); font-size:12px;
+    padding:7px 12px; border-radius:6px;
+    white-space:nowrap;
+    opacity:0; pointer-events:none;
+    transition:opacity .18s ease;
+  }
+  .bot-fab:hover + .bot-fab-label{opacity:1;}
+
+  .bot-panel{
+    position:fixed;
+    right:22px; bottom:90px;
+    z-index:101;
+    width:min(640px, calc(100vw - 32px));
+    height:min(760px, calc(100vh - 120px));
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.65);
+    transform:translateY(12px) scale(0.98);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .16s ease, transform .16s ease, width .18s ease, height .18s ease;
+  }
+  .bot-panel.open{
+    transform:translateY(0) scale(1);
+    opacity:1;
+    pointer-events:auto;
+  }
+  .bot-panel.maximized{
+    width:min(1040px, calc(100vw - 32px));
+    height:min(900px, calc(100vh - 48px));
+    bottom:22px;
+  }
+  .bot-panel-bar{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 14px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-raise);
+    flex-shrink:0;
+  }
+  .bot-panel-bar .status-dot{background:var(--teal); animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.4;}}
+  .bot-panel-title{
+    font-family:var(--mono); font-size:12.5px; color:var(--text); font-weight:600;
+  }
+  .bot-panel-title span{color:var(--muted); font-weight:400;}
+  .bot-panel-actions{
+    margin-left:auto; display:flex; align-items:center; gap:6px;
+  }
+  .bot-panel-actions a, .bot-panel-actions button{
+    font-family:var(--mono); font-size:11px;
+    color:var(--muted);
+    background:none; border:none; cursor:pointer;
+    padding:4px 6px; border-radius:4px;
+    text-decoration:none;
+    transition:color .15s ease, background .15s ease;
+  }
+  .bot-panel-actions a:hover, .bot-panel-actions button:hover{color:var(--text); background:var(--panel-hover);}
+  .bot-panel iframe{
+    flex:1; width:100%; border:0; background:#fff;
+  }
+  .bot-panel-fallback{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:12px; padding:24px; text-align:center;
+    font-family:var(--mono); font-size:12.5px; color:var(--muted);
+  }
+  .bot-panel-fallback a{color:var(--amber); text-decoration:none; border-bottom:1px solid var(--amber-dim);}
+
+  @media (max-width:480px){
+    .bot-fab-label{display:none;}
+    .bot-panel, .bot-panel.maximized{right:12px; left:12px; width:auto; bottom:82px; height:min(78vh, 640px);}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-prompt">julian<span>@</span>davies<span>:~$</span></div>
+    <ul class="nav-links">
+      <li><a href="#jobs">projects</a></li>
+      <li><a href="#experience">experience</a></li>
+      <li><a href="#about">about</a></li>
+      <li><a class="btn" href="Julian_Davies_Resume.pdf" target="_blank" rel="noopener">⭳ résumé (PDF)</a></li>
+      <li><a href="https://github.com/juliandavies-cs" target="_blank" rel="noopener">github</a></li>
+    </ul>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="terminal-title">portfolio.sh — juliandavies-cs</span>
+      </div>
+      <div class="terminal-body" id="typeTarget" aria-live="polite">
+      </div>
+    </div>
+    <h1>whoami</h1>
+    <p class="lede">Julian Davies - Software developer with 4+ years building backend and AI-powered systems, currently at OpenText.
+    <div class="hero-ctas">
+      <a class="cta primary" href="Julian_Davies_Resume.pdf" target="_blank" rel="noopener">⭳ Download résumé (PDF)</a>
+    </div>
+  </section>
+
+  <section class="section" id="jobs">
+    <div class="section-label">Job queue <span class="tag">// 4 processes</span></div>
+    <div class="jobs">
+
+      <article class="job">
+        <div class="job-head">
+          <span class="status-dot"></span>
+          <span class="job-name">spotify-automation</span>
+          <span class="job-id">#a1e3c9</span>
+        </div>
+        <div class="job-body">
+          <p class="job-desc">Creates a Spotify playlist end-to-end by driving the actual web player — logs in, adds three tracks, and confirms it worked. Built as a Selenium test suite rather than a script, so the "product" is really the test coverage: a login case and a full create-playlist case, run with pytest.</p>
+          <div class="job-tags"><span>Python</span><span>Selenium</span><span>pytest</span><span>Pipenv</span></div>
+        </div>
+        <div class="job-foot">
+          <span class="job-cmd"><span class="amber">$</span> pytest tests/spotify_tests.py</span>
+          <a class="job-link" href="https://github.com/juliandavies-cs/spotify-automation" target="_blank" rel="noopener">View repo →</a>
+        </div>
+      </article>
+
+      <article class="job">
+        <div class="job-head">
+          <span class="status-dot"></span>
+          <span class="job-name">discord-sports-bot</span>
+          <span class="job-id">#914d10</span>
+        </div>
+        <div class="job-body">
+          <p class="job-desc">A real-time Discord bot that pushes sports betting alerts to a server, with its own SQL layer and configurable per-user preferences so alerts get routed to the people who actually want them — an always-on background process rather than a script you run once.</p>
+          <div class="job-tags"><span>Python</span><span>Discord.py</span><span>SQL</span></div>
+        </div>
+        <div class="job-foot">
+          <span class="job-cmd"><span class="amber">$</span> python src/bot.py</span>
+          <a class="job-link" href="https://github.com/juliandavies-cs/discord-sports-bot" target="_blank" rel="noopener">View repo →</a>
+        </div>
+      </article>
+
+      <article class="job">
+        <div class="job-head">
+          <span class="status-dot"></span>
+          <span class="job-name">OpenHeart</span>
+          <span class="job-id">#f9c201</span>
+        </div>
+        <div class="job-body">
+          <p class="job-desc">Writes a thoughtful get-well-soon card once you give it the specifics of who it's for — trading the blank-page problem of a card store for a few details and a generated draft. Runs as a small Node/Express app.</p>
+          <div class="job-tags"><span>JavaScript</span><span>Node.js</span><span>Express</span></div>
+        </div>
+        <div class="job-foot">
+          <span class="job-cmd"><span class="amber">$</span> node server.js</span>
+          <a class="job-link" href="https://github.com/juliandavies-cs/OpenHeart" target="_blank" rel="noopener">View repo →</a>
+        </div>
+      </article>
+
+      <article class="job">
+        <div class="job-head">
+          <span class="status-dot"></span>
+          <span class="job-name">resume-bot</span>
+          <span class="job-id">#1118ee</span>
+        </div>
+        <div class="job-body">
+          <p class="job-desc">A chat interface that answers questions about Julian's own résumé — the résumé is embedded with OpenAI's API for semantic search, then queried so the bot only ever answers from what's actually on it. Deployed with its own CI/CD pipeline, and doubles as the live link on that same résumé.</p>
+          <div class="job-tags"><span>JavaScript</span><span>Node.js</span><span>Express</span><span>OpenAI API</span></div>
+        </div>
+        <div class="job-foot">
+          <span class="job-cmd"><span class="amber">$</span> node server.js</span>
+          <a class="job-link" href="https://github.com/juliandavies-cs/resume-bot" target="_blank" rel="noopener">View repo →</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section" id="experience">
+    <div class="section-label">Experience <span class="tag">// deploy_log --since=2017</span></div>
+    <div class="log">
+
+      <div class="log-entry">
+        <div class="log-date">2025 → now</div>
+        <div class="rail"></div>
+        <div class="log-body">
+          <p class="log-role">Software Developer</p>
+          <p class="log-org">OpenText</p>
+          <ul>
+            <li>Design and deploy AI-powered backend systems using LangChain and LangGraph</li>
+            <li>Integrate vector databases for scalable knowledge retrieval in LLM applications</li>
+            <li>Orchestrate multi-agent workflows to improve reliability across AI tasks</li>
+            <li>Optimize prompt engineering and backend orchestration for LLM workflows</li>
+            <li>Maintain distributed microservices supporting AI-enabled enterprise functionality</li>
+            <li>Apply CI/CD standards and automated testing to improve release reliability</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <div class="log-date">2023 – 2025</div>
+        <div class="rail"></div>
+        <div class="log-body">
+          <p class="log-role">Software Developer</p>
+          <p class="log-org">OpenText</p>
+          <ul>
+            <li>Developed and maintained RESTful APIs supporting enterprise application workflows</li>
+            <li>Integrated SQL databases with backend services and application logic</li>
+            <li>Implemented OAuth2 authentication flows and secure access patterns</li>
+            <li>Built Redis-backed token lifecycle management for authentication services</li>
+            <li>Created responsive interfaces using JavaScript and EJS</li>
+            <li>Collaborated in Agile teams to deliver and maintain production software</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <div class="log-date">2022 – 2023</div>
+        <div class="rail"></div>
+        <div class="log-body">
+          <p class="log-role">Associate Quality Assurance Developer</p>
+          <p class="log-org">OpenText</p>
+          <ul>
+            <li>Built automated testing frameworks using Selenium and Python to improve regression coverage</li>
+            <li>Executed regression testing across multiple environments and release cycles</li>
+            <li>Analyzed defects and partnered with developers to identify root causes and resolutions</li>
+            <li>Developed diagnostic scripts to isolate complex software defects</li>
+            <li>Implemented accessibility compliance improvements across application workflows</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <div class="log-date">2021</div>
+        <div class="rail"></div>
+        <div class="log-body">
+          <p class="log-role">Software Development Intern</p>
+          <p class="log-org">OpenText</p>
+          <ul>
+            <li>Led regression testing initiatives and helped coordinate release validation</li>
+            <li>Documented, triaged, and prioritized software defects for development teams</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="log-entry">
+        <div class="log-date">2017 – 2020</div>
+        <div class="rail"></div>
+        <div class="log-body">
+          <p class="log-role">Software Development &amp; QA Intern</p>
+          <p class="log-org">OpenText</p>
+          <ul>
+            <li>Developed JavaScript-based QA tools to support software testing workflows</li>
+            <li>Implemented performance enhancements and contributed to application quality improvements</li>
+            <li>Conducted peer code reviews and collaborated with engineering team members</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="section-label">About <span class="tag">// process info</span></div>
+    <div class="about-grid">
+      <div class="about">
+        <p>Software developer with 4+ years of professional experience, most of it at OpenText, building secure cloud-based applications and — more recently — AI-powered backend systems. That means LangChain and LangGraph workflows, vector databases for retrieval, REST APIs, microservices, and enough automated testing to trust a release.</p>
+        <p>The four repos above are the same instincts applied at a smaller, personal scale: the thread across all of it, day job and side projects alike, is taking something tedious and having a program do it reliably instead.</p>
+        <div class="edu">
+          <div class="edu-item"><span>Bachelor of Computer Science</span><span class="school">Carleton University</span></div>
+          <div class="edu-item"><span>High School Diploma</span><span class="school">Appleby College</span></div>
+        </div>
+        <div class="edu">
+          <div class="edu-item"><span>Résumé</span><span class="school"><a href="Julian_Davies_Resume.pdf" target="_blank" rel="noopener" style="color:var(--amber);">download →</a></span></div>
+        </div>
+      </div>
+      <div class="skills-grid">
+        <div class="stack">
+          <h3>Backend</h3>
+          <ul>
+            <li>Java, Python, Node.js</li>
+            <li>Spring Boot</li>
+            <li>REST APIs</li>
+            <li>Microservices</li>
+            <li>Distributed systems</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <h3>AI / LLM</h3>
+          <ul>
+            <li>LangChain, LangGraph</li>
+            <li>Prompt engineering</li>
+            <li>Multi-agent workflows</li>
+            <li>Vector databases</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <h3>Data &amp; Security</h3>
+          <ul>
+            <li>SQL, Redis</li>
+            <li>OAuth2, authentication</li>
+            <li>Token management</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <h3>Frontend &amp; Tools</h3>
+          <ul>
+            <li>JavaScript, TypeScript</li>
+            <li>HTML, CSS, EJS</li>
+            <li>Selenium, JUnit, Postman</li>
+            <li>Git, CI/CD, Agile / Scrum</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-log">
+    <span>[process exited 0] — reach me anytime, no errors expected</span>
+    <span style="display:flex; gap:18px; flex-wrap:wrap;">
+      <a href="mailto:juliandavies.cs@gmail.com">juliandavies.cs@gmail.com</a>
+      <a href="https://github.com/juliandavies-cs" target="_blank" rel="noopener">github.com/juliandavies-cs</a>
+      <a href="https://resume-bot-td8i.onrender.com" target="_blank" rel="noopener">live résumé bot ↗</a>
+    </span>
+  </div>
+</footer>
+
+<button class="bot-fab" id="botFab" aria-haspopup="dialog" aria-expanded="false" aria-controls="botPanel" type="button">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#1a1305" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 4h16v11H7l-3 3V4z"></path>
+    <line x1="8" y1="8.5" x2="16" y2="8.5"></line>
+    <line x1="8" y1="11.5" x2="13" y2="11.5"></line>
+  </svg>
+  <span class="fab-dot"></span>
+</button>
+<span class="bot-fab-label">Ask my résumé bot</span>
+
+<div class="bot-panel" id="botPanel" role="dialog" aria-label="Julian's résumé chatbot" aria-hidden="true">
+  <div class="bot-panel-bar">
+    <span class="status-dot"></span>
+    <span class="bot-panel-title">resume-bot <span>— live, asks about my résumé</span></span>
+    <div class="bot-panel-actions">
+      <a href="https://resume-bot-td8i.onrender.com" target="_blank" rel="noopener" title="Open in new tab">↗</a>
+      <button type="button" id="botMaximize" aria-label="Enlarge chat" aria-pressed="false" title="Enlarge">⤢</button>
+      <button type="button" id="botClose" aria-label="Close chat">✕</button>
+    </div>
+  </div>
+  <div id="botIframeWrap" style="flex:1; display:flex;"></div>
+</div>
+
+<script>
+  (function(){
+    var fab = document.getElementById('botFab');
+    var panel = document.getElementById('botPanel');
+    var closeBtn = document.getElementById('botClose');
+    var maxBtn = document.getElementById('botMaximize');
+    var iframeWrap = document.getElementById('botIframeWrap');
+    var iframeLoaded = false;
+    var BOT_URL = 'https://resume-bot-td8i.onrender.com/';
+
+    function loadIframe(){
+      if(iframeLoaded) return;
+      iframeLoaded = true;
+      var iframe = document.createElement('iframe');
+      iframe.src = BOT_URL;
+      iframe.title = "Julian Davies' résumé chatbot";
+      iframe.loading = 'lazy';
+      iframeWrap.appendChild(iframe);
+
+      // If the target refuses to be framed, the iframe stays blank with no
+      // error we can catch — offer a fallback link after a short grace period.
+      setTimeout(function(){
+        var doc;
+        try{ doc = iframe.contentDocument; }catch(e){ /* cross-origin, fine */ }
+        if(doc && doc.body && doc.body.innerHTML.trim() === ''){
+          showFallback();
+        }
+      }, 2500);
+    }
+
+    function showFallback(){
+      iframeWrap.innerHTML = '<div class="bot-panel-fallback">This chatbot can\'t be embedded here.<br><a href="'+BOT_URL+'" target="_blank" rel="noopener">Open it in a new tab →</a></div>';
+    }
+
+    function openPanel(){
+      loadIframe();
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      fab.setAttribute('aria-expanded', 'true');
+    }
+
+    function closePanel(){
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      fab.setAttribute('aria-expanded', 'false');
+      fab.focus();
+    }
+
+    fab.addEventListener('click', function(){
+      if(panel.classList.contains('open')) closePanel();
+      else openPanel();
+    });
+    closeBtn.addEventListener('click', closePanel);
+    maxBtn.addEventListener('click', function(){
+      var isMax = panel.classList.toggle('maximized');
+      maxBtn.setAttribute('aria-pressed', isMax ? 'true' : 'false');
+      maxBtn.textContent = isMax ? '⤡' : '⤢';
+      maxBtn.title = isMax ? 'Shrink' : 'Enlarge';
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && panel.classList.contains('open')) closePanel();
+    });
+  })();
+</script>
+
+<script>
+  (function(){
+    var target = document.getElementById('typeTarget');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var lines = [
+      {text: '$ whoami', cls: ''},
+      {text: 'julian davies — software developer, ai & backend', cls: 'muted'},
+      {text: '', cls: ''},
+      {text: '$ ./run_portfolio.sh --list-jobs', cls: ''},
+      {text: '[ OK ] opentext              — 4+ yrs, langchain + rest apis', cls: 'muted'},
+      {text: '[ OK ] spotify-automation    — playlist creation via selenium', cls: 'muted'},
+      {text: '[ OK ] discord-sports-bot    — betting alerts, python + sql', cls: 'muted'},
+      {text: '[ OK ] OpenHeart             — generates get-well-soon cards', cls: 'muted'},
+      {text: '[ OK ] resume-bot            — answers questions on my résumé', cls: 'muted'},
+      {text: '', cls: ''},
+      {text: '5 jobs idle. scroll to inspect.', cls: 'teal'}
+    ];
+
+    function renderStatic(){
+      var html = '';
+      lines.forEach(function(l){
+        if(l.text === ''){ html += '<br>'; return; }
+        var cls = l.cls ? ' class="'+l.cls+'"' : '';
+        html += '<div'+cls+'>'+escapeHtml(l.text)+'</div>';
+      });
+      target.innerHTML = html;
+    }
+
+    function escapeHtml(s){
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    if(reduce){
+      renderStatic();
+      return;
+    }
+
+    var lineIndex = 0, charIndex = 0;
+    var speed = 16;
+
+    function typeNext(){
+      if(lineIndex >= lines.length){
+        var cur = document.createElement('span');
+        cur.className = 'cursor';
+        target.appendChild(cur);
+        return;
+      }
+      var line = lines[lineIndex];
+
+      if(charIndex === 0){
+        var div = document.createElement('div');
+        if(line.cls) div.className = line.cls;
+        div.dataset.full = line.text;
+        target.appendChild(div);
+      }
+
+      var div = target.lastChild;
+      if(charIndex <= line.text.length){
+        div.textContent = line.text.slice(0, charIndex);
+        charIndex++;
+        setTimeout(typeNext, line.text === '' ? 40 : speed);
+      } else {
+        lineIndex++;
+        charIndex = 0;
+        setTimeout(typeNext, line.text === '' ? 60 : 90);
+      }
+    }
+
+    typeNext();
+  })();
+</script>
+
+</body>
+</html>
